@@ -1,0 +1,70 @@
+import React, { useState } from "react";
+import { FaBars, FaTimes, FaShoppingCart } from "react-icons/fa";
+import css from "./Header.module.css";
+import { Link } from "react-router-dom";
+import logo from '../../assets/img/logo.png';
+
+const Header = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  return (
+    <header className={css.header}>
+      <div className={css.headerLayout}>
+        {/* Кнопка бургер */}
+        <button
+          className={css.burgerButton}
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          <FaBars size={24} />
+        </button>
+
+        {/* Логотип */}
+        <img src={logo} alt="logo" className={css.logo} />
+
+        {/* Пошук */}
+        <div className={css.headerInput}>
+          <input type="text" placeholder="Я шукаю..." />
+          <button className={css.searchButton}>Пошук</button>
+        </div>
+
+        {/* Кошик */}
+        <button className={css.cartButton}>
+          <Link to="/cart" className={css.cartLink}>
+            <FaShoppingCart size={24} className={css.cartIcon} />
+          </Link>
+        </button>
+      </div>
+
+      {/* Сайдбар */}
+      <div
+        className={css.sidenav}
+        style={{ width: menuOpen ? "250px" : "0" }}
+      >
+        {/* Кнопка закриття */}
+        <FaTimes
+          size={30}
+          className={css.closebtn}
+          onClick={toggleMenu}
+        />
+
+        {/* Посилання */}
+        <Link to="#" className={css.sidenav__link}>About</Link>
+        <Link to="#" className={css.sidenav__link}>Services</Link>
+        <Link to="#" className={css.sidenav__link}>Clients</Link>
+        <Link to="#" className={css.sidenav__link}>Contact</Link>
+      </div>
+      <div
+        className={css.overlay}
+        style={{ display: menuOpen ? "block" : "none" }}
+        onClick={toggleMenu}
+      ></div>
+    </header>
+  );
+};
+
+export default Header;
