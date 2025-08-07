@@ -6,6 +6,7 @@ import logo from '../../assets/img/logo.png';
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [inputSearchItem, setInputSearchItem] = useState(''); // Додано стан для інпуту
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -28,7 +29,12 @@ const Header = () => {
 
         {/* Пошук */}
         <div className={css.headerInput}>
-          <input type="text" placeholder="Я шукаю..." />
+          <input
+            type="text"
+            placeholder="Я шукаю..."
+            value={inputSearchItem}
+            onChange={(e) => setInputSearchItem(e.target.value)}
+          />
           <button className={css.searchButton}>Пошук</button>
         </div>
 

@@ -163,12 +163,19 @@
     transition: opacity 0.3s ease;
 }
 
-/* Адаптивність */
 @media (max-width: 768px) {
     .headerLayout {
-        padding: 0 10px;
+        justify-content: space-between;
+        gap: 10px;
         height: auto;
-        flex-wrap: wrap;
+        padding: 0 15px;
+    }
+
+    .logo {
+        max-width: 80px;
+        width: 40px;
+        height: 40px;
+        margin: 0;
     }
 
     .headerInput {
@@ -176,12 +183,51 @@
         height: 36px;
     }
 
-    .searchButton {
-        padding: 6px 12px;
-        font-size: 12px;
+    .headerInput input {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+        .searchButton {
+            display: none;
+        }
+
+}
+/* Адаптивність для телефонів (макс. ширина 320px) */
+@media (max-width: 320px) {
+    .headerLayout {
+        align-items: center;
+        height: auto;
+        padding: 10px;
+    }
+
+    .burgerButton {
+        align-self: flex-start;
     }
 
     .logo {
-        max-width: 100px;
+        max-width: 60px;
+        width: 35px;
+        height: 35px;
+    }
+
+    .headerInput {
+        width: 100%;
+    }
+
+    .headerInput input {
+        width: 100%;
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+
+    .searchButton {
+        display: none;
+    }
+
+    .cartButton {
+        align-self: flex-end;
+        padding: 5px;
     }
 }
