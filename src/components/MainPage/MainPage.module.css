@@ -1,0 +1,63 @@
+.MainPage {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.CategoriesAside {
+  width: 300px;
+  padding: 10px 0;
+}
+
+.CategoriesAside ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.categoryItem {
+  display: flex;
+}
+
+.categoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.2s ease;
+}
+
+.iconTitle {
+  color: #666;
+  font-size: 18px;
+  transition: color 0.2s ease;
+}
+
+/* При наведенні змінюється колір і тексту, і іконки */
+.categoryTitle:hover,
+.categoryTitle:hover .iconTitle {
+  color: #2d8f44;
+}
+
+.MainContent {
+  padding: 20px;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .MainPage {
+    flex-direction: column;
+  }
+
+  .CategoriesAside {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .categoryItem {
+    flex: 0 0 auto;
+  }
+}

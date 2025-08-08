@@ -15,6 +15,7 @@ const Header = () => {
   return (
     <header className={css.header}>
       <div className={css.headerLayout}>
+        
         {/* Кнопка бургер */}
         <button
           className={css.burgerButton}
@@ -59,10 +60,11 @@ const Header = () => {
         />
 
         {/* Посилання */}
-        <Link to="#" className={css.sidenav__link}>About</Link>
-        <Link to="#" className={css.sidenav__link}>Services</Link>
-        <Link to="#" className={css.sidenav__link}>Clients</Link>
-        <Link to="#" className={css.sidenav__link}>Contact</Link>
+        <Link to="#" className={css.sidenav__link}>Головна</Link>
+        <Link to="#" className={css.sidenav__link}>Про Нас</Link>
+        <Link to="#" className={css.sidenav__link}>Контакти</Link>
+        <Link to="#" className={css.sidenav__link}>Доставка та Оплата</Link>
+        <Link to="#" className={css.sidenav__link}>Перевезення та Обмін</Link>
       </div>
       <div
         className={css.overlay}
