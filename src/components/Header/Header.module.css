@@ -1,22 +1,35 @@
 /* Заголовок */
 .header {
     background: black;
-    /* синьо-зелений градієнт */
-    padding: 10px 20px;
     color: white;
+    padding: 10px 0;
 }
 
 /* Лейаут для елементів */
 .headerLayout {
     display: flex;
     align-items: center;
-    justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
-    height: 60px;
+    padding: 0 15px;
     box-sizing: border-box;
+    height: 60px;
+}
+
+/* Ліва частина з логотипом і бургером */
+.leftSection {
+    display: flex;
+    align-items: center;
     gap: 20px;
+}
+
+/* Права частина з пошуком і кошиком */
+.rightSection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex: 1;
 }
 
 /* Кнопка бургер */
@@ -187,6 +200,16 @@
         padding: 0 15px;
     }
 
+    .leftSection {
+        gap: 10px;
+    }
+
+    .rightSection {
+        flex: 1;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
     .logo {
         max-width: 80px;
         width: 40px;
@@ -216,6 +239,14 @@
         align-items: center;
         height: auto;
         padding: 10px;
+    }
+
+    .leftSection {
+        gap: 10px;
+    }
+
+    .rightSection {
+        gap: 10px;
     }
 
     .burgerButton {

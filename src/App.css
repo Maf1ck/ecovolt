@@ -1,19 +1,65 @@
+/* Замінити існуючі стилі в App.css або index.css */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 #root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Прибираємо обмеження ширини та padding для футера на всю ширину */
+}
+
+/* Основний контейнер для контенту */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Основний контент має займати всю доступну висоту */
+.main-content {
+  flex: 1;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* App компонент */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Контент обмежується шириною, але футер займає всю ширину */
+.App main {
+  flex: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Стилі логотипу залишаються без змін */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +68,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

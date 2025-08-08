@@ -42,9 +42,7 @@
   color: #2d8f44;
 }
 
-.MainContent {
-  padding: 20px;
-}
+
 
 /* Адаптив */
 @media (max-width: 768px) {

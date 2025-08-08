@@ -1,0 +1,226 @@
+/* Основний футер */
+.footer {
+    background: #1a1a1a;
+    color: white;
+    margin-top: auto;
+}
+
+/* Контейнер футера */
+.footerContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 30px;
+    padding-top: 50px;
+    padding-bottom: 30px;
+}
+
+/* Секції футера */
+.footerSection {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Логотип футера */
+.footerLogo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+/* Заголовок футера */
+.footerTitle {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0 0 15px 0;
+    color: #4CAF50;
+}
+
+/* Опис футера */
+.footerDescription {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #cccccc;
+    margin-bottom: 25px;
+    max-width: 350px;
+}
+
+/* Соціальні посилання */
+.socialLinks {
+    display: flex;
+    gap: 15px;
+}
+
+.socialLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.socialLink:hover {
+    background: #4CAF50;
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* Заголовки секцій */
+.sectionTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0 0 20px 0;
+    color: #4CAF50;
+}
+
+/* Списки посилань */
+.footerLinks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footerLinks li {
+    margin-bottom: 12px;
+}
+
+.footerLink {
+    color: #cccccc;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s ease;
+}
+
+.footerLink:hover {
+    color: #4CAF50;
+}
+
+/* Контактна інформація */
+.contactInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.contactItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.contactIcon {
+    color: #4CAF50;
+    font-size: 16px;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.contactItem div p {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    color: #cccccc;
+    line-height: 1.4;
+}
+
+.contactItem div p:last-child {
+    margin-bottom: 0;
+}
+
+/* Нижня частина футера */
+.footerBottom {
+    background: #111111;
+    border-top: 1px solid #333;
+    padding: 20px 0;
+}
+
+.footerBottomContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.bottomContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #888888;
+}
+
+.bottomContent p {
+    margin: 0;
+}
+
+/* Адаптив для планшетів */
+@media (max-width: 992px) {
+    .footerContainer {
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 25px;
+        padding-top: 40px;
+    }
+
+    .footerDescription {
+        max-width: 100%;
+    }
+}
+
+/* Адаптив для середніх планшетів */
+@media (max-width: 768px) {
+    .footerContainer {
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        padding: 30px 15px;
+    }
+}
+
+/* Адаптив для мобільних */
+@media (max-width: 480px) {
+    .footerContainer {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        padding: 25px 15px;
+    }
+
+    .footerBottomContainer {
+        padding: 0 15px;
+    }
+
+    .bottomContent {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .socialLinks {
+        justify-content: center;
+    }
+
+    .footerTitle {
+        font-size: 22px;
+    }
+
+    .footerDescription {
+        font-size: 15px;
+    }
+
+    .sectionTitle {
+        font-size: 18px;
+    }
+
+    .contactItem {
+        gap: 10px;
+    }
+
+    .socialLink {
+        width: 35px;
+        height: 35px;
+    }
+}
