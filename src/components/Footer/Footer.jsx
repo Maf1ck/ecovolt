@@ -12,7 +12,7 @@ const Footer = () => {
         {/* Логотип і опис */}
         <div className={css.footerSection}>
           <img src={logo} alt="logo" className={css.footerLogo} />
-          <h3 className={css.footerTitle}>EcoYou</h3>
+          <h3 className={css.footerTitle}>EcoVolt</h3>
           <p className={css.footerDescription}>
             Ваш надійний партнер у світі екологічних рішень. 
             Сонячні панелі, інвертори, акумулятори та все для зеленої енергії.
@@ -26,32 +26,6 @@ const Footer = () => {
             <a href="#" className={css.socialLink}><FaViber size={20} /></a>
           </div>
         </div>
-
-        {/* Категорії товарів - Колонка 1 */}
-        <div className={css.footerSection}>
-          <h4 className={css.sectionTitle}>Сонячна енергетика</h4>
-          <ul className={css.footerLinks}>
-            <li><Link to="#" className={css.footerLink}>Сонячні панелі</Link></li>
-            <li><Link to="#" className={css.footerLink}>Сонячні інвертори</Link></li>
-            <li><Link to="#" className={css.footerLink}>Оптимізатори потужності</Link></li>
-            <li><Link to="#" className={css.footerLink}>Контролер</Link></li>
-            <li><Link to="#" className={css.footerLink}>Кріплення для сонячних модулів</Link></li>
-            <li><Link to="#" className={css.footerLink}>Кабелі і комплектуючі</Link></li>
-          </ul>
-        </div>
-
-        {/* Категорії товарів - Колонка 2 */}
-        <div className={css.footerSection}>
-          <h4 className={css.sectionTitle}>Енергозбереження</h4>
-          <ul className={css.footerLinks}>
-            <li><Link to="#" className={css.footerLink}>Акумулятори, батареї</Link></li>
-            <li><Link to="#" className={css.footerLink}>Акумулятори для дронів</Link></li>
-            <li><Link to="#" className={css.footerLink}>Джерела безперебійного живлення</Link></li>
-            <li><Link to="#" className={css.footerLink}>Зарядні станції, портативні системи</Link></li>
-            <li><Link to="#" className={css.footerLink}>Запобіжники</Link></li>
-          </ul>
-        </div>
-
 
         {/* Інформація */}
         <div className={css.footerSection}>
@@ -72,24 +46,21 @@ const Footer = () => {
             <div className={css.contactItem}>
               <FaPhone className={css.contactIcon} />
               <div>
-                <p>+380 (67) 123-45-67</p>
-                <p>+380 (95) 123-45-67</p>
+                <p>+380 (98) 515-00-55</p>
               </div>
             </div>
             
             <div className={css.contactItem}>
               <FaEnvelope className={css.contactIcon} />
               <div>
-                <p>info@ecoyou.com.ua</p>
-                <p>support@ecoyou.com.ua</p>
+                <p>ecovolt.technology@gmail.com</p>
               </div>
             </div>
             
             <div className={css.contactItem}>
               <FaMapMarkerAlt className={css.contactIcon} />
               <div>
-                <p>м. Кропивницький</p>
-                <p>вул. Центральна, 123</p>
+                <p>Київ, Україна</p>
               </div>
             </div>
           </div>

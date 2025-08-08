@@ -1,103 +1,240 @@
-import React from "react";
+import React, { useState } from "react";
 import css from "./MainPage.module.css";
 import { Link } from "react-router-dom";
 import {
-  FaSun,             // Сонячні панелі
-  FaPowerOff,        // Сонячні інвертори
-  FaBolt,            // Запобіжники
-  FaBatteryFull,     // Джерела безперебійного живлення
-  FaPlug,            // Кабелі і комплектуючі
-  FaMicrochip,       // Контролер
-  FaHammer,          // Кріплення
-  FaBatteryThreeQuarters, // Акумулятори
-  FaFireAlt,         // Твердопаливні котли
-  FaSnowflake,       // Кондиціонери
-  FaExternalLinkAlt  // Зарядні станції
+  FaSun,
+  FaPowerOff,
+  FaBolt,
+  FaBatteryFull,
+  FaPlug,
+  FaMicrochip,
+  FaHammer,
+  FaBatteryThreeQuarters,
+  FaFireAlt,
+  FaSnowflake,
+  FaExternalLinkAlt
 } from "react-icons/fa";
-import { FaGaugeHigh } from "react-icons/fa6"; // Оптимізатори потужності
-import { GiMushroom } from "react-icons/gi";   // Гриби
+import { FaGaugeHigh } from "react-icons/fa6";
+import { GiMushroom } from "react-icons/gi";
 
 const MainPage = () => {
+  const [expandedCategories, setExpandedCategories] = useState({});
+
+  const toggleCategory = (categoryId) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+  };
+
+  const categories = [
+    {
+      id: "solar-panels",
+      title: "Сонячні панелі",
+      icon: <FaSun className={css.iconTitle} />,
+      subcategories: [
+        { title: "Risen", link: "/risen" },
+        { title: "Trina Solar", link: "/trina-solar" },
+        { title: "Jinko Solar", link: "/jinko-solar" },
+        { title: "Leapton", link: "/leapton" },
+        { title: "Inter Energy", link: "/inter-energy" },
+        { title: "Altek", link: "/altek" },
+        { title: "Longi Solar", link: "/longi-solar" },
+        { title: "JA Solar", link: "/ja-solar" },
+        { title: "Canadian Solar", link: "/canadian-solar" },
+        { title: "Sola", link: "/sola" },
+        { title: "TONGWEI", link: "/tongwei" },
+        { title: "Luxen", link: "/luxen" },
+        { title: "Ulica", link: "/ulica" },
+        { title: "Astronergy", link: "/astronergy" },
+        { title: "SunPro", link: "/sunpro" },
+        { title: "ZNSHINE", link: "/znshine" },
+        { title: "HT-SAAE", link: "/ht-saae" },
+        { title: "Horay Solar", link: "/horay-solar" },
+      ],
+    },
+    {
+      id: "inverters",
+      title: "Сонячні інвертори",
+      icon: <FaPowerOff className={css.iconTitle} />,
+      subcategories: [
+        { title: "Deye", link: "/deye" },
+        { title: "Altek", link: "/altek" },
+        { title: "Axioma Energy", link: "/axioma-energy" },
+        { title: "LuxPower", link: "/luxpower" },
+        { title: "Sofar Solar", link: "/sofar-solar" },
+        { title: "BlueSun", link: "/bluesun" },
+        { title: "Huawei", link: "/huawei" },
+        { title: "Felicitysolar", link: "/felicitysolar" },
+        { title: "Must", link: "/must" },
+        { title: "Solis", link: "/solis" },
+        { title: "Afore", link: "/afore" },
+        { title: "Fronius", link: "/fronius" },
+        { title: "Q-Power", link: "/q-power" },
+      ],
+    },
+    {
+      id: "fuses",
+      title: "Запобіжники",
+      icon: <FaBolt className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "ups",
+      title: "Джерела безперебійного живлення",
+      icon: <FaBatteryFull className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "cables",
+      title: "Кабелі і комплектуючі",
+      icon: <FaPlug className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "optimizers",
+      title: "Оптимізатори потужності",
+      icon: <FaGaugeHigh className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "controllers",
+      title: "Контролер",
+      icon: <FaMicrochip className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "mounting",
+      title: "Кріплення для сонячних модулів",
+      icon: <FaHammer className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "batteries",
+      title: "Акумулятори, батареї",
+      icon: <FaBatteryThreeQuarters className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "drone-batteries",
+      title: "Акумулятори для дронів",
+      icon: <FaBatteryFull className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "charging-stations",
+      title: "Зарядні станції, портативні системи",
+      icon: <FaExternalLinkAlt className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "mushrooms",
+      title: "Гриби, грибні добавки",
+      icon: <GiMushroom className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "boilers",
+      title: "Твердопаливні котли",
+      icon: <FaFireAlt className={css.iconTitle} />,
+      subcategories: [],
+    },
+    {
+      id: "air-conditioners",
+      title: "Кондиціонери",
+      icon: <FaSnowflake className={css.iconTitle} />,
+      subcategories: [],
+    },
+  ];
+
   return (
     <div className={css.MainPage}>
-      <div className={css.MainContent}>
-        {/* Контент праворуч */}
-      </div>
-
       <aside className={css.CategoriesAside}>
-        <ul>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaSun className={css.iconTitle} /> Сонячні панелі
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaPowerOff className={css.iconTitle} /> Сонячні інвертори
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaBolt className={css.iconTitle} /> Запобіжники
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaBatteryFull className={css.iconTitle} /> Джерела безперебійного живлення
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaPlug className={css.iconTitle} /> Кабелі і комплектуючі
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaGaugeHigh className={css.iconTitle} /> Оптимізатори потужності
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaMicrochip className={css.iconTitle} /> Контролер
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaHammer className={css.iconTitle} /> Кріплення для сонячних модулів
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaBatteryThreeQuarters className={css.iconTitle} /> Акумулятори, батареї
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaBatteryFull className={css.iconTitle} /> Акумулятори для дронів
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaExternalLinkAlt className={css.iconTitle} /> Зарядні станції, портативні системи
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <GiMushroom className={css.iconTitle} /> Гриби, грибні добавки
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaFireAlt className={css.iconTitle} /> Твердопаливні котли
-            </Link>
-          </li>
-          <li className={css.categoryItem}>
-            <Link className={css.categoryTitle}>
-              <FaSnowflake className={css.iconTitle} /> Кондиціонери
-            </Link>
-          </li>
-        </ul>
+        <div className={css.Categories}>
+          <ul className={css.menuList}>
+            <li className={css.menuItem}>
+              <div className={css.categoryHeader}>
+                <span
+                  className={css.categoryHeaderTitle}
+                  onClick={() => toggleCategory("main")}
+                >
+                  ▶ Товари
+                </span>
+                {expandedCategories["main"] && (
+                  <ul className={css.categoryList}>
+                    {categories.map((category) => (
+                      <li key={category.id} className={css.categoryItem}>
+                        <div
+                          className={css.categoryTitle}
+                          onClick={() => toggleCategory(category.id)}
+                        >
+                          <span className={css.expandIcon}>
+                            {category.subcategories.length > 0 &&
+                              (expandedCategories[category.id]
+                                ? "▼"
+                                : "▶")}
+                          </span>
+                          {category.icon}
+                          <span className={css.categoryText}>
+                            {category.title}
+                          </span>
+                        </div>
+
+                        {category.subcategories.length > 0 &&
+                          expandedCategories[category.id] && (
+                            <ul className={css.subcategoryList}>
+                              {category.subcategories.map(
+                                (subcategory, index) => (
+                                  <li
+                                    key={index}
+                                    className={css.subcategoryItem}
+                                  >
+                                    <Link
+                                      to={subcategory.link}
+                                      className={css.subcategoryLink}
+                                    >
+                                      {subcategory.title}
+                                    </Link>
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+            <li className={css.menuItem}>
+              <Link to="#" className={css.menuLink}>
+                Доставка і оплата
+              </Link>
+            </li>
+            <li className={css.menuItem}>
+              <Link to="#" className={css.menuLink}>
+                Про Нас
+              </Link>
+            </li>
+            <li className={css.menuItem}>
+              <Link to="#" className={css.menuLink}>
+                Відгуки
+              </Link>
+            </li>
+            <li className={css.menuItem}>
+              <Link to="#" className={css.menuLink}>
+                Перевезення та Обмін
+              </Link>
+            </li>
+          </ul>
+        </div>
       </aside>
+
+      <div className={css.MainContent}>
+        <div className={css.contentWrapper}>
+          {/* Основний контент */}
+        </div>
+      </div>
     </div>
   );
 };
