@@ -207,22 +207,22 @@ const MainPage = () => {
               </div>
             </li>
             <li className={css.menuItem}>
-              <Link to="#" className={css.menuLink}>
+              <Link to="/info-delivery" className={css.menuLink}>
                 Доставка і оплата
               </Link>
             </li>
             <li className={css.menuItem}>
-              <Link to="#" className={css.menuLink}>
+              <Link to="/about-us" className={css.menuLink}>
                 Про Нас
               </Link>
             </li>
             <li className={css.menuItem}>
-              <Link to="#" className={css.menuLink}>
+              <Link to="/reviews" className={css.menuLink}>
                 Відгуки
               </Link>
             </li>
             <li className={css.menuItem}>
-              <Link to="#" className={css.menuLink}>
+              <Link to="/transportation-info" className={css.menuLink}>
                 Перевезення та Обмін
               </Link>
             </li>
