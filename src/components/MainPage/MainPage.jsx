@@ -29,7 +29,7 @@ const MainPage = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetch("https://ecovolt-back.onrender.com//api/products")
+    fetch("https://ecovolt-back.onrender.com/api/products")
       .then(res => res.json())
       .then(data => {
         setProducts(data.products || []);
