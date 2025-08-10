@@ -256,61 +256,53 @@ const MainPage = () => {
 
       <div className={css.MainContent}>
         <div className={css.contentWrapper}>
-          <h1>Продукти</h1>
+          <h1 className={css.pageTitle}>Продукти</h1>
           
-          {/* Діагностична інформація */}
-          <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
+          {/* Діагностична інформація - тимчасово приховано */}
+          {/* <div className={css.diagnosticInfo}>
             <p>Статус завантаження: {loading ? 'Завантажується...' : 'Завантажено'}</p>
             <p>Кількість продуктів: {products.length}</p>
-            {error && <p style={{ color: 'red' }}>Помилка: {error}</p>}
-          </div>
+            {error && <p className={css.errorMessage}>Помилка: {error}</p>}
+          </div> */}
 
           {loading ? (
-            <p>Завантаження продуктів...</p>
+            <div className={css.loadingMessage}>
+              <p>Завантаження продуктів...</p>
+            </div>
           ) : error ? (
-            <p>Помилка завантаження: {error}</p>
+            <div className={css.errorContainer}>
+              <p>Помилка завантаження: {error}</p>
+            </div>
           ) : products.length === 0 ? (
-            <p>Продукти не знайдено</p>
+            <div className={css.noProductsMessage}>
+              <p>Продукти не знайдено</p>
+            </div>
           ) : (
-            <ul className={css.productList} style={{ 
-              listStyle: 'none', 
-              padding: '0', 
-              margin: '0' 
-            }}>
+            <div className={css.productsGrid}>
               {products.map(product => (
-                <li 
-                  key={product.id} 
-                  className={css.productItem}
-                  style={{
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    marginBottom: '15px',
-                    backgroundColor: '#fff',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  <h2 
-                    className={css.productTitle}
-                    style={{
-                      fontSize: '1.5em',
-                      marginBottom: '10px',
-                      color: '#333'
-                    }}
-                  >
-                    {product.title}
-                  </h2>
-                  <div 
-                    className={css.productDescription}
-                    dangerouslySetInnerHTML={{ __html: product.description }}
-                    style={{
-                      lineHeight: '1.6',
-                      color: '#666'
-                    }}
-                  />
-                </li>
+                <div key={product.id} className={css.productCard}>
+                  <div className={css.productImageContainer}>
+                    <img 
+                      src={product.main_image} 
+                      alt={product.title} 
+                      className={css.productImage}
+                    />
+                  </div>
+                    <div className={css.productName}>
+                      {product.name_multilang.uk}
+                    </div>
+                    
+                    <div className={css.productPrice}>
+                      Ціна: {product.price} грн
+                    </div>
+                    <div className={css.productButtonContainer}>
+                      <button className={css.productButton}>
+                        Детальніше
+                      </button>
+                    </div>
+                  </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
