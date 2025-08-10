@@ -19,6 +19,9 @@ import { GiMushroom } from "react-icons/gi";
 
 const MainPage = () => {
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const toggleCategory = (categoryId) => {
     setExpandedCategories((prev) => ({
@@ -26,15 +29,26 @@ const MainPage = () => {
       [categoryId]: !prev[categoryId],
     }));
   };
-  const [products, setProducts] = useState([]);
 
   useEffect(() => {
+    console.log("Завантаження продуктів...");
+    setLoading(true);
+    
     fetch("https://ecovolt-back.onrender.com/api/products")
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data.products || []);
+      .then(res => {
+        console.log("Response status:", res.status);
+        return res.json();
       })
-      .catch(err => console.error(err));
+      .then(data => {
+        console.log("Отримані дані:", data);
+        setProducts(data.products || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Помилка завантаження:", err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
   const categories = [
@@ -243,17 +257,61 @@ const MainPage = () => {
       <div className={css.MainContent}>
         <div className={css.contentWrapper}>
           <h1>Продукти</h1>
-          <ul className={css.productList}>
-  {products.map(product => (
-    <li key={product.id} className={css.productItem}>
-      <h2 className={css.productTitle}>{product.title}</h2>
-      <div 
-        className={css.productDescription} 
-        dangerouslySetInnerHTML={{ __html: product.description }} 
-      />
-    </li>
-  ))}
-</ul>
+          
+          {/* Діагностична інформація */}
+          <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '5px' }}>
+            <p>Статус завантаження: {loading ? 'Завантажується...' : 'Завантажено'}</p>
+            <p>Кількість продуктів: {products.length}</p>
+            {error && <p style={{ color: 'red' }}>Помилка: {error}</p>}
+          </div>
+
+          {loading ? (
+            <p>Завантаження продуктів...</p>
+          ) : error ? (
+            <p>Помилка завантаження: {error}</p>
+          ) : products.length === 0 ? (
+            <p>Продукти не знайдено</p>
+          ) : (
+            <ul className={css.productList} style={{ 
+              listStyle: 'none', 
+              padding: '0', 
+              margin: '0' 
+            }}>
+              {products.map(product => (
+                <li 
+                  key={product.id} 
+                  className={css.productItem}
+                  style={{
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    marginBottom: '15px',
+                    backgroundColor: '#fff',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  <h2 
+                    className={css.productTitle}
+                    style={{
+                      fontSize: '1.5em',
+                      marginBottom: '10px',
+                      color: '#333'
+                    }}
+                  >
+                    {product.title}
+                  </h2>
+                  <div 
+                    className={css.productDescription}
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                    style={{
+                      lineHeight: '1.6',
+                      color: '#666'
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
