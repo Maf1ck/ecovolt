@@ -244,13 +244,16 @@ const MainPage = () => {
         <div className={css.contentWrapper}>
           <h1>Продукти</h1>
           <ul className={css.productList}>
-            {products.map(product => (
-              <li key={product.id} className={css.productItem}  dangerouslySetInnerHTML={{ __html: product.description }}>
-                <h2 className={css.productTitle}>{product.title}</h2>
-                <p className={css.productDescription}>{product.description}</p>
-              </li>
-            ))}
-          </ul>
+  {products.map(product => (
+    <li key={product.id} className={css.productItem}>
+      <h2 className={css.productTitle}>{product.title}</h2>
+      <div 
+        className={css.productDescription} 
+        dangerouslySetInnerHTML={{ __html: product.description }} 
+      />
+    </li>
+  ))}
+</ul>
         </div>
       </div>
     </div>
