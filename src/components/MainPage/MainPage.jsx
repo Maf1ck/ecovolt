@@ -26,6 +26,16 @@ const MainPage = () => {
       [categoryId]: !prev[categoryId],
     }));
   };
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products")
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.products || []);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   const categories = [
     {
@@ -232,7 +242,15 @@ const MainPage = () => {
 
       <div className={css.MainContent}>
         <div className={css.contentWrapper}>
-          {/* Основний контент */}
+          <h1>Продукти</h1>
+          <ul className={css.productList}>
+            {products.map(product => (
+              <li key={product.id} className={css.productItem}>
+                <h2 className={css.productTitle}>{product.title}</h2>
+                <p className={css.productDescription}>{product.description}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
