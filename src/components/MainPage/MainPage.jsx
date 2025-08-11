@@ -21,8 +21,10 @@ import { GiMushroom } from "react-icons/gi";
 const MainPage = () => {
   const [expandedCategories, setExpandedCategories] = useState({});
   const [products, setProducts] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
   const toggleCategory = (categoryId) => {
@@ -32,22 +34,50 @@ const MainPage = () => {
     }));
   };
 
+  // Функція для завантаження товарів
+  const fetchProducts = async (page = 1, append = false) => {
+    if (page === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      const response = await fetch(
+        `https://ecovolt-back.onrender.com/api/products?page=${page}&limit=8`
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        if (append) {
+          setProducts((prev) => [...prev, ...data.products]);
+        } else {
+          setProducts(data.products || []);
+        }
+        setPagination(data.pagination);
+        setCurrentPage(page);
+      } else {
+        throw new Error(data.error || 'Помилка завантаження товарів');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error("Помилка завантаження товарів:", err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  // Початкове завантаження товарів
   useEffect(() => {
-    setLoading(true);
-    fetch("https://ecovolt-back.onrender.com/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data.products || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    fetchProducts(1, false);
   }, []);
 
+  // Функція для завантаження додаткових товарів
   const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 8);
+    if (pagination?.has_more && !loadingMore) {
+      fetchProducts(currentPage + 1, true);
+    }
   };
 
   const categories = [
@@ -257,12 +287,14 @@ const MainPage = () => {
         <div className={css.contentWrapper}>
           <h1 className={css.pageTitle}>Продукти</h1>
           
-          {/* Діагностична інформація - тимчасово приховано */}
-          {/* <div className={css.diagnosticInfo}>
-            <p>Статус завантаження: {loading ? 'Завантажується...' : 'Завантажено'}</p>
-            <p>Кількість продуктів: {products.length}</p>
-            {error && <p className={css.errorMessage}>Помилка: {error}</p>}
-          </div> */}
+          {/* Інформація про пагінацію */}
+          {pagination && (
+            <div className={css.paginationInfo}>
+              <p>
+                Показано {pagination.showing} товарів
+              </p>
+            </div>
+          )}
 
           {loading ? (
             <div className={css.loadingMessage}>
@@ -271,6 +303,12 @@ const MainPage = () => {
           ) : error ? (
             <div className={css.errorContainer}>
               <p>Помилка завантаження: {error}</p>
+              <button 
+                onClick={() => fetchProducts(1, false)}
+                className={css.retryButton}
+              >
+                Спробувати ще раз
+              </button>
             </div>
           ) : products.length === 0 ? (
             <div className={css.noProductsMessage}>
@@ -279,17 +317,20 @@ const MainPage = () => {
           ) : (
             <>
               <div className={css.productsGrid}>
-                {products.slice(0, visibleCount).map((product) => (
+                {products.map((product) => (
                   <div key={product.id} className={css.productCard}>
                     <div className={css.productImageContainer}>
                       <img
                         src={product.main_image}
                         alt={product.title}
                         className={css.productImage}
+                        onError={(e) => {
+                          e.target.src = '/placeholder-image.png'; // Fallback image
+                        }}
                       />
                     </div>
                     <div className={css.productName}>
-                      {product.name_multilang.uk}
+                      {product.name_multilang?.uk || product.name || 'Назва товару'}
                     </div>
                     <div className={css.productPrice}>
                       Ціна: {product.price} грн
@@ -301,9 +342,12 @@ const MainPage = () => {
                 ))}
               </div>
 
-              {visibleCount < products.length && (
+              {pagination?.has_more && (
                 <div className={css.loadMoreWrapper}>
-                  <LoadMoreBtn handleLoadMore={handleLoadMore} />
+                  <LoadMoreBtn 
+                    handleLoadMore={handleLoadMore}
+                    loading={loadingMore}
+                  />
                 </div>
               )}
             </>
