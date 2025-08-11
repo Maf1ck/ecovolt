@@ -372,7 +372,11 @@ li {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 8px;
 }
-
+.loadMoreWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
 /* Кнопка продукту */
 .productButtonContainer {
   margin: 10px 0;
@@ -385,7 +389,7 @@ li {
   width: 75%;
   margin: 10px 0;
   padding: 12px;
-  background: linear-gradient(135deg, #116d27 0%, #28a745 100%);
+  background: linear-gradient(135deg, #116d27 0%, #1a9436 100%);
   color: white;
   border: none;
   border-radius: 8px;

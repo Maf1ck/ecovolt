@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import css from "./MainPage.module.css";
 import { Link } from "react-router-dom";
+import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
 import {
   FaSun,
   FaPowerOff,
@@ -20,6 +21,7 @@ import { GiMushroom } from "react-icons/gi";
 const MainPage = () => {
   const [expandedCategories, setExpandedCategories] = useState({});
   const [products, setProducts] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(8);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,25 +33,22 @@ const MainPage = () => {
   };
 
   useEffect(() => {
-    console.log("Завантаження продуктів...");
     setLoading(true);
-    
     fetch("https://ecovolt-back.onrender.com/api/products")
-      .then(res => {
-        console.log("Response status:", res.status);
-        return res.json();
-      })
-      .then(data => {
-        console.log("Отримані дані:", data);
+      .then((res) => res.json())
+      .then((data) => {
         setProducts(data.products || []);
         setLoading(false);
       })
-      .catch(err => {
-        console.error("Помилка завантаження:", err);
+      .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
   }, []);
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 8);
+  };
 
   const categories = [
     {
@@ -278,31 +277,36 @@ const MainPage = () => {
               <p>Продукти не знайдено</p>
             </div>
           ) : (
-            <div className={css.productsGrid}>
-              {products.map(product => (
-                <div key={product.id} className={css.productCard}>
-                  <div className={css.productImageContainer}>
-                    <img 
-                      src={product.main_image} 
-                      alt={product.title} 
-                      className={css.productImage}
-                    />
-                  </div>
+            <>
+              <div className={css.productsGrid}>
+                {products.slice(0, visibleCount).map((product) => (
+                  <div key={product.id} className={css.productCard}>
+                    <div className={css.productImageContainer}>
+                      <img
+                        src={product.main_image}
+                        alt={product.title}
+                        className={css.productImage}
+                      />
+                    </div>
                     <div className={css.productName}>
                       {product.name_multilang.uk}
                     </div>
-                    
                     <div className={css.productPrice}>
                       Ціна: {product.price} грн
                     </div>
                     <div className={css.productButtonContainer}>
-                      <button className={css.productButton}>
-                        Детальніше
-                      </button>
+                      <button className={css.productButton}>Детальніше</button>
                     </div>
                   </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {visibleCount < products.length && (
+                <div className={css.loadMoreWrapper}>
+                  <LoadMoreBtn handleLoadMore={handleLoadMore} />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
