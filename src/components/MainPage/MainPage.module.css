@@ -204,14 +204,17 @@ li {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* Заголовок сторінки */
+/* Заголовок сторінки - тепер відцентрований під пошуком */
 .pageTitle {
   font-size: 2.5rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 30px;
+  margin: 30px 0;
   text-align: center;
   position: relative;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .pageTitle::after {
@@ -224,6 +227,21 @@ li {
   height: 4px;
   background: linear-gradient(90deg, #116d27, #28a745);
   border-radius: 2px;
+}
+
+/* Інформація про пагінацію */
+.paginationInfo {
+  text-align: center;
+  margin-bottom: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.paginationInfo p {
+  color: #6c757d;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 /* Діагностична інформація */
@@ -250,6 +268,9 @@ li {
   background: #f8f9fa;
   border-radius: 12px;
   margin: 20px 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .loadingMessage p {
@@ -262,6 +283,22 @@ li {
   font-size: 1.1rem;
   color: #dc3545;
   font-weight: 600;
+}
+
+.retryButton {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #116d27;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.retryButton:hover {
+  background: #0e5d23;
 }
 
 .noProductsMessage p {
@@ -352,7 +389,7 @@ li {
   color: #6c757d;
   font-size: 0.9rem;
   margin-bottom: 15px;
-  margin:10px;
+  margin: 10px;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -372,11 +409,13 @@ li {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 8px;
 }
+
 .loadMoreWrapper {
   display: flex;
   justify-content: center;
   margin-top: 20px;
 }
+
 /* Кнопка продукту */
 .productButtonContainer {
   margin: 10px 0;
@@ -385,6 +424,7 @@ li {
   justify-content: center;
   bottom: 10px;
 }
+
 .productButton {
   width: 75%;
   margin: 10px 0;

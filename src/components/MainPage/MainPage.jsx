@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import css from "./MainPage.module.css";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
 import {
   FaSun,
@@ -22,11 +23,14 @@ const MainPage = () => {
   const [expandedCategories, setExpandedCategories] = useState({});
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [categoryPages, setCategoryPages] = useState({}); // Сторінки для кожної категорії
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [activeFilter, setActiveFilter] = useState(null);
 
+  // Функція для перемикання категорій
   const toggleCategory = (categoryId) => {
     setExpandedCategories((prev) => ({
       ...prev,
@@ -34,7 +38,76 @@ const MainPage = () => {
     }));
   };
 
-  // Функція для завантаження товарів
+  // Мапа категорій з їх ключами
+  const categoryMap = {
+    'Сонячні панелі': 'solar-panels',
+    'Сонячні інвертори': 'inverters',
+    'Запобіжники': 'fuses',
+    'Джерела безперебійного живлення': 'ups',
+    'Кабелі і комплектуючі': 'cables',
+    'Оптимізатори потужності': 'optimizers',
+    'Контролер': 'controllers',
+    'Кріплення для сонячних модулів': 'mounting',
+    'Акумулятори, батареї': 'batteries',
+    'Акумулятори для дронів': 'drone-batteries',
+    'Зарядні станції, портативні системи': 'charging-stations',
+    'Гриби, грибні добавки': 'mushrooms',
+    'Твердопаливні котли': 'boilers',
+    'Кондиціонери': 'air-conditioners'
+  };
+
+  // Універсальна функція для завантаження товарів за категорією
+  const fetchProductsByCategory = async (categoryKey, page = 1, append = false) => {
+    try {
+      if (page === 1) {
+        setLoading(true);
+        setProducts([]);
+        setCategoryPages(prev => ({ ...prev, [categoryKey]: 1 }));
+      } else {
+        setLoadingMore(true);
+      }
+
+      const response = await fetch(
+        `https://ecovolt-back.onrender.com/api/products/category/${categoryKey}?page=${page}&limit=8`,
+        {
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || `Не вдалося завантажити ${categoryKey}`);
+      }
+
+      if (append) {
+        setProducts(prev => [...prev, ...data.products]);
+      } else {
+        setProducts(data.products);
+      }
+      
+      setPagination(data.pagination);
+      setCategoryPages(prev => ({ ...prev, [categoryKey]: page }));
+      
+      if (data.fromCache) {
+        console.warn("Використано кешовані дані");
+      }
+    } catch (err) {
+      const errorMessage = err.message || "Невідома помилка";
+      setError(errorMessage);
+      console.error(`Помилка завантаження ${categoryKey}:`, err);
+    } finally {
+      if (page === 1) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
+    }
+  };
+
+  // Функція для завантаження звичайних товарів
   const fetchProducts = async (page = 1, append = false) => {
     if (page === 1) {
       setLoading(true);
@@ -54,7 +127,15 @@ const MainPage = () => {
         } else {
           setProducts(data.products || []);
         }
-        setPagination(data.pagination);
+        
+        // Створюємо правильну структуру пагінації
+        const paginationData = {
+          ...data.pagination,
+          hasMore: data.pagination.hasMore || (data.pagination.page < data.pagination.totalPages),
+          showing: `${((page - 1) * 8) + 1}-${Math.min(page * 8, data.pagination.totalItems)} з ${data.pagination.totalItems}`
+        };
+        
+        setPagination(paginationData);
         setCurrentPage(page);
       } else {
         throw new Error(data.error || 'Помилка завантаження товарів');
@@ -68,17 +149,70 @@ const MainPage = () => {
     }
   };
 
+  // Функція для завантаження додаткових товарів (залежно від активного фільтру)
+  const handleLoadMore = () => {
+    if (loadingMore) return;
+
+    if (activeFilter && activeFilter !== null) {
+      const currentCategoryPage = categoryPages[activeFilter] || 1;
+      if (pagination?.hasMore) {
+        fetchProductsByCategory(activeFilter, currentCategoryPage + 1, true);
+      }
+    } else {
+      if (pagination?.hasMore) {
+        fetchProducts(currentPage + 1, true);
+      }
+    }
+  };
+
+  // Універсальна функція для показу категорії
+  const showCategory = (categoryKey, categoryTitle) => {
+    setActiveFilter(categoryKey);
+    setError(null);
+    fetchProductsByCategory(categoryKey, 1, false);
+  };
+
+  // Функція для скидання фільтра
+  const resetFilter = () => {
+    setActiveFilter(null);
+    setError(null);
+    fetchProducts(1, false);
+  };
+
+  // Змінюємо обробник кліку для категорії
+  const handleCategoryClick = (category) => {
+    const categoryKey = categoryMap[category.title];
+    
+    if (categoryKey) {
+      // Для всіх активних категорій: перемикаємо розгортання і завантажуємо товари
+      const isCurrentlyExpanded = expandedCategories[category.id];
+      
+      if (!isCurrentlyExpanded) {
+        // Якщо категорія згорнута - розгортаємо і завантажуємо товари
+        setExpandedCategories(prev => ({
+          ...prev,
+          'main': true,
+          [category.id]: true
+        }));
+        showCategory(categoryKey, category.title);
+      } else {
+        // Якщо категорія розгорнута - згортаємо її
+        setExpandedCategories(prev => ({
+          ...prev,
+          [category.id]: false
+        }));
+      }
+    } else {
+      // Для категорій без товарів - звичайна логіка
+      toggleCategory(category.id);
+      resetFilter();
+    }
+  };
+
   // Початкове завантаження товарів
   useEffect(() => {
     fetchProducts(1, false);
   }, []);
-
-  // Функція для завантаження додаткових товарів
-  const handleLoadMore = () => {
-    if (pagination?.has_more && !loadingMore) {
-      fetchProducts(currentPage + 1, true);
-    }
-  };
 
   const categories = [
     {
@@ -219,7 +353,7 @@ const MainPage = () => {
                       <li key={category.id} className={css.categoryItem}>
                         <div
                           className={css.categoryTitle}
-                          onClick={() => toggleCategory(category.id)}
+                          onClick={() => handleCategoryClick(category)}
                         >
                           <span className={css.expandIcon}>
                             {category.subcategories.length > 0 &&
@@ -287,6 +421,16 @@ const MainPage = () => {
         <div className={css.contentWrapper}>
           <h1 className={css.pageTitle}>Продукти</h1>
           
+          {/* Показати активний фільтр */}
+          {activeFilter && (
+            <div className={css.activeFilter}>
+              <p>Показано: {Object.keys(categoryMap).find(key => categoryMap[key] === activeFilter)}</p>
+              <button onClick={resetFilter} className={css.clearFilterBtn}>
+                Скинути фільтр
+              </button>
+            </div>
+          )}
+          
           {/* Інформація про пагінацію */}
           {pagination && (
             <div className={css.paginationInfo}>
@@ -304,7 +448,13 @@ const MainPage = () => {
             <div className={css.errorContainer}>
               <p>Помилка завантаження: {error}</p>
               <button 
-                onClick={() => fetchProducts(1, false)}
+                onClick={() => {
+                  if (activeFilter) {
+                    fetchProductsByCategory(activeFilter, 1, false);
+                  } else {
+                    fetchProducts(1, false);
+                  }
+                }}
                 className={css.retryButton}
               >
                 Спробувати ще раз
@@ -322,10 +472,10 @@ const MainPage = () => {
                     <div className={css.productImageContainer}>
                       <img
                         src={product.main_image}
-                        alt={product.title}
+                        alt={product.name_multilang?.uk || product.name}
                         className={css.productImage}
                         onError={(e) => {
-                          e.target.src = '/placeholder-image.png'; // Fallback image
+                          e.target.src = '/placeholder-image.png';
                         }}
                       />
                     </div>
@@ -342,7 +492,7 @@ const MainPage = () => {
                 ))}
               </div>
 
-              {pagination?.has_more && (
+              {pagination?.hasMore && (
                 <div className={css.loadMoreWrapper}>
                   <LoadMoreBtn 
                     handleLoadMore={handleLoadMore}

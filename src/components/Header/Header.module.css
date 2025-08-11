@@ -5,31 +5,16 @@
     padding: 10px 0;
 }
 
-/* Лейаут для елементів */
+/* Основний лейаут */
 .headerLayout {
     display: flex;
     align-items: center;
-    max-width: 1200px;
+    justify-content: center;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 0 15px;
-    box-sizing: border-box;
     height: 60px;
-}
-
-/* Ліва частина з логотипом і бургером */
-.leftSection {
-    display: flex;
-    align-items: center;
     gap: 20px;
-}
-
-/* Права частина з пошуком і кошиком */
-.rightSection {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    flex: 1;
 }
 
 /* Кнопка бургер */
@@ -43,23 +28,87 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    height: 40px;
-    width: 40px;
+    padding: 8px;
+    border-radius: 4px;
 }
 
 .burgerButton:hover {
     transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Логотип */
 .logo {
-    display: block;
-    max-width: 120px;
-    margin: 0;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
+}
+
+/* Контейнер пошуку */
+.searchContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 500px;
+    
+    margin: 0 20px;
+    margin-left: 350px;
+}
+
+.searchInput {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    transition: box-shadow 0.3s ease;
+}
+
+.searchInput:focus {
+    box-shadow: 0 0 8px rgba(17, 109, 39, 0.5);
+}
+
+/* Кнопка пошуку */
+.searchButton {
+    background: #116d27;
+    border: none;
+    padding: 12px 24px;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.searchButton:hover {
+    background: #0e5d23;
+}
+
+/* Кошик */
+.cartLink {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.cartLink:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.cartIcon {
+    color: white;
+    font-size: 24px;
 }
 
 /* Сайдбар */
@@ -72,35 +121,28 @@
     left: 0;
     background: black;
     overflow-x: hidden;
-    transition: width 0.5s ease;
+    transition: width 0.3s ease;
     padding-top: 60px;
 }
 
-/* Відкритий стан сайдбара */
-.sidenav.open {
-    width: 250px;
-}
-
-/* Посилання сайдбару */
 .sidenav__link {
-    padding: 12px 20px;
+    padding: 15px 20px;
     text-decoration: none;
-    font-size: 20px;
+    font-size: 18px;
     color: white;
     display: block;
     transition: background 0.3s ease;
 }
 
 .sidenav__link:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Кнопка закриття */
 .closebtn {
     position: absolute;
-    top: 16px;
+    top: 15px;
     right: 20px;
-    font-size: 36px;
     color: white;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -110,77 +152,7 @@
     transform: rotate(90deg);
 }
 
-/* Пошук */
-.headerInput {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 40px;
-}
-
-.headerInput input {
-    padding: 12px 24px;
-    border-radius: 20px;
-    border: none;
-    outline: none;
-    width: 300px;
-    flex: 1;
-    font-size: 14px;
-    transition: box-shadow 0.3s ease;
-}
-
-.headerInput input:focus {
-    box-shadow: 0 0 5px 2px rgba(0, 123, 255, 0.5);
-}
-
-/* Кнопка пошуку */
-.searchButton {
-    background: #116d27;
-    border: none;
-    padding: 12px 32px;
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    font-size: 14px;
-    white-space: nowrap;
-}
-
-.searchButton:hover {
-    background: #1d9412;
-}
-
-/* Кошик */
-.cartButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    width: 40px;
-}
-
-.cartLink {
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.cartIcon {
-    color: white;
-    transition: transform 0.2s ease;
-    font-size: 20px;
-}
-
-.cartIcon:hover {
-    transform: scale(1.1);
-}
-
+/* Оверлей */
 .overlay {
     position: fixed;
     top: 0;
@@ -189,94 +161,60 @@
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 90;
-    transition: opacity 0.3s ease;
 }
 
+/* Мобільна адаптивність */
 @media (max-width: 768px) {
     .headerLayout {
-        justify-content: space-between;
         gap: 10px;
-        height: auto;
-        padding: 0 15px;
+        padding: 0 10px;
     }
 
-    .leftSection {
-        gap: 10px;
-    }
-
-    .rightSection {
-        flex: 1;
-        justify-content: flex-end;
-        gap: 10px;
-    }
-
-    .logo {
-        max-width: 80px;
-        width: 40px;
-        height: 40px;
-        margin: 0;
-    }
-
-    .headerInput {
-        width: 100%;
-        height: 36px;
-    }
-
-    .headerInput input {
-        width: 100%;
-        padding: 8px 12px;
-        font-size: 14px;
+    .searchContainer {
+        margin: 0 10px;
+        max-width: none;
     }
 
     .searchButton {
         display: none;
     }
+
+    .searchInput {
+        padding: 10px 16px;
+        font-size: 16px;
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+    }
 }
 
-/* Адаптивність для телефонів (макс. ширина 320px) */
-@media (max-width: 320px) {
+@media (max-width: 480px) {
     .headerLayout {
-        align-items: center;
-        height: auto;
-        padding: 10px;
+        height: 50px;
+        gap: 8px;
+        padding: 0 8px;
     }
 
-    .leftSection {
-        gap: 10px;
+    .searchContainer {
+        margin: 0 8px;
     }
 
-    .rightSection {
-        gap: 10px;
+    .searchInput {
+        padding: 8px 12px;
+    }
+
+    .logo {
+        width: 35px;
+        height: 35px;
     }
 
     .burgerButton {
-        height: 35px;
-        width: 35px;
+        padding: 6px;
     }
 
-    .logo {
-        max-width: 60px;
-        width: 35px;
-        height: 35px;
-    }
-
-    .headerInput {
-        width: 100%;
-    }
-
-    .headerInput input {
-        width: 100%;
-        padding: 10px 16px;
-        font-size: 14px;
-    }
-
-    .searchButton {
-        display: none;
-    }
-
-    .cartButton {
-        height: 35px;
-        width: 35px;
-        padding: 5px;
+    .cartLink {
+        padding: 8px;
     }
 }
