@@ -105,8 +105,10 @@ const MainPage = () => {
         setLoadingMore(false);
       }
     }
-  };
+      
 
+  };
+console.log( products);
   // Функція для завантаження звичайних товарів
   const fetchProducts = async (page = 1, append = false) => {
     if (page === 1) {
@@ -147,6 +149,8 @@ const MainPage = () => {
       setLoading(false);
       setLoadingMore(false);
     }
+      console.log("Категорії:", products);
+
   };
 
   // Функція для завантаження додаткових товарів (залежно від активного фільтру)
@@ -419,7 +423,7 @@ const MainPage = () => {
 
       <div className={css.MainContent}>
         <div className={css.contentWrapper}>
-          <h1 className={css.pageTitle}>Продукти</h1>
+          <h1 className={css.pageTitle}>Товари</h1>
           
           {/* Показати активний фільтр */}
           {activeFilter && (
