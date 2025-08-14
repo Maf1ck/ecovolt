@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, memo } from "react";
 import css from "./MainPage.module.css";
 import { Link } from "react-router-dom";
-import axios from 'axios';
+import useProducts from "../../hooks/useProducts";
 import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
+import { CATEGORIES_CONFIG, DEFAULT_IMAGES } from "../../utils/constants";
 import {
   FaSun,
   FaPowerOff,
@@ -19,324 +20,175 @@ import {
 import { FaGaugeHigh } from "react-icons/fa6";
 import { GiMushroom } from "react-icons/gi";
 
-const MainPage = () => {
-  const [expandedCategories, setExpandedCategories] = useState({});
-  const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [categoryPages, setCategoryPages] = useState({}); // Сторінки для кожної категорії
-  const [pagination, setPagination] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(null);
+// Мапа іконок для категорій
+const CATEGORY_ICONS = {
+  "solar-panels": <FaSun className={css.iconTitle} />,
+  "inverters": <FaPowerOff className={css.iconTitle} />,
+  "fuses": <FaBolt className={css.iconTitle} />,
+  "ups": <FaBatteryFull className={css.iconTitle} />,
+  "cables": <FaPlug className={css.iconTitle} />,
+  "optimizers": <FaGaugeHigh className={css.iconTitle} />,
+  "controllers": <FaMicrochip className={css.iconTitle} />,
+  "mounting": <FaHammer className={css.iconTitle} />,
+  "batteries": <FaBatteryThreeQuarters className={css.iconTitle} />,
+  "drone-batteries": <FaBatteryFull className={css.iconTitle} />,
+  "charging-stations": <FaExternalLinkAlt className={css.iconTitle} />,
+  "mushrooms": <GiMushroom className={css.iconTitle} />,
+  "boilers": <FaFireAlt className={css.iconTitle} />,
+  "air-conditioners": <FaSnowflake className={css.iconTitle} />
+};
 
-  // Функція для перемикання категорій
-  const toggleCategory = (categoryId) => {
-    setExpandedCategories((prev) => ({
-      ...prev,
-      [categoryId]: !prev[categoryId],
-    }));
-  };
-
-  // Мапа категорій з їх ключами
-  const categoryMap = {
-    'Сонячні панелі': 'solar-panels',
-    'Сонячні інвертори': 'inverters',
-    'Запобіжники': 'fuses',
-    'Джерела безперебійного живлення': 'ups',
-    'Кабелі і комплектуючі': 'cables',
-    'Оптимізатори потужності': 'optimizers',
-    'Контролер': 'controllers',
-    'Кріплення для сонячних модулів': 'mounting',
-    'Акумулятори, батареї': 'batteries',
-    'Акумулятори для дронів': 'drone-batteries',
-    'Зарядні станції, портативні системи': 'charging-stations',
-    'Гриби, грибні добавки': 'mushrooms',
-    'Твердопаливні котли': 'boilers',
-    'Кондиціонери': 'air-conditioners'
-  };
-
-  // Універсальна функція для завантаження товарів за категорією
-  const fetchProductsByCategory = async (categoryKey, page = 1, append = false) => {
-    try {
-      if (page === 1) {
-        setLoading(true);
-        setProducts([]);
-        setCategoryPages(prev => ({ ...prev, [categoryKey]: 1 }));
-      } else {
-        setLoadingMore(true);
-      }
-
-      const response = await fetch(
-        `https://ecovolt-back.onrender.com/api/products/category/${categoryKey}?page=${page}&limit=8`,
-        {
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        }
-      );
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || `Не вдалося завантажити ${categoryKey}`);
-      }
-
-      if (append) {
-        setProducts(prev => [...prev, ...data.products]);
-      } else {
-        setProducts(data.products);
-      }
-      
-      setPagination(data.pagination);
-      setCategoryPages(prev => ({ ...prev, [categoryKey]: page }));
-      
-      if (data.fromCache) {
-        console.warn("Використано кешовані дані");
-      }
-    } catch (err) {
-      const errorMessage = err.message || "Невідома помилка";
-      setError(errorMessage);
-      console.error(`Помилка завантаження ${categoryKey}:`, err);
-    } finally {
-      if (page === 1) {
-        setLoading(false);
-      } else {
-        setLoadingMore(false);
-      }
-    }
-      
-
-  };
-console.log( products);
-  // Функція для завантаження звичайних товарів
-  const fetchProducts = async (page = 1, append = false) => {
-    if (page === 1) {
-      setLoading(true);
-    } else {
-      setLoadingMore(true);
-    }
-
-    try {
-      const response = await fetch(
-        `https://ecovolt-back.onrender.com/api/products?page=${page}&limit=8`
-      );
-      const data = await response.json();
-
-      if (response.ok) {
-        if (append) {
-          setProducts((prev) => [...prev, ...data.products]);
-        } else {
-          setProducts(data.products || []);
-        }
-        
-        // Створюємо правильну структуру пагінації
-        const paginationData = {
-          ...data.pagination,
-          hasMore: data.pagination.hasMore || (data.pagination.page < data.pagination.totalPages),
-          showing: `${((page - 1) * 8) + 1}-${Math.min(page * 8, data.pagination.totalItems)} з ${data.pagination.totalItems}`
-        };
-        
-        setPagination(paginationData);
-        setCurrentPage(page);
-      } else {
-        throw new Error(data.error || 'Помилка завантаження товарів');
-      }
-    } catch (err) {
-      setError(err.message);
-      console.error("Помилка завантаження товарів:", err);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-      console.log("Категорії:", products);
-
-  };
-
-  // Функція для завантаження додаткових товарів (залежно від активного фільтру)
-  const handleLoadMore = () => {
-    if (loadingMore) return;
-
-    if (activeFilter && activeFilter !== null) {
-      const currentCategoryPage = categoryPages[activeFilter] || 1;
-      if (pagination?.hasMore) {
-        fetchProductsByCategory(activeFilter, currentCategoryPage + 1, true);
-      }
-    } else {
-      if (pagination?.hasMore) {
-        fetchProducts(currentPage + 1, true);
-      }
-    }
-  };
-
-  // Універсальна функція для показу категорії
-  const showCategory = (categoryKey, categoryTitle) => {
-    setActiveFilter(categoryKey);
-    setError(null);
-    fetchProductsByCategory(categoryKey, 1, false);
-  };
-
-  // Функція для скидання фільтра
-  const resetFilter = () => {
-    setActiveFilter(null);
-    setError(null);
-    fetchProducts(1, false);
-  };
-
-  // Змінюємо обробник кліку для категорії
-  const handleCategoryClick = (category) => {
-    const categoryKey = categoryMap[category.title];
-    
-    if (categoryKey) {
-      // Для всіх активних категорій: перемикаємо розгортання і завантажуємо товари
-      const isCurrentlyExpanded = expandedCategories[category.id];
-      
-      if (!isCurrentlyExpanded) {
-        // Якщо категорія згорнута - розгортаємо і завантажуємо товари
-        setExpandedCategories(prev => ({
-          ...prev,
-          'main': true,
-          [category.id]: true
-        }));
-        showCategory(categoryKey, category.title);
-      } else {
-        // Якщо категорія розгорнута - згортаємо її
-        setExpandedCategories(prev => ({
-          ...prev,
-          [category.id]: false
-        }));
-      }
-    } else {
-      // Для категорій без товарів - звичайна логіка
-      toggleCategory(category.id);
-      resetFilter();
-    }
-  };
-
-  // Початкове завантаження товарів
-  useEffect(() => {
-    fetchProducts(1, false);
+// Memoized Product Card component
+const ProductCard = memo(({ product }) => {
+  const handleImageError = useCallback((e) => {
+    e.target.src = DEFAULT_IMAGES.PRODUCT_PLACEHOLDER;
   }, []);
 
-  const categories = [
-    {
-      id: "solar-panels",
-      title: "Сонячні панелі",
-      icon: <FaSun className={css.iconTitle} />,
-      subcategories: [
-        { title: "Risen", link: "/risen" },
-        { title: "Trina Solar", link: "/trina-solar" },
-        { title: "Jinko Solar", link: "/jinko-solar" },
-        { title: "Leapton", link: "/leapton" },
-        { title: "Inter Energy", link: "/inter-energy" },
-        { title: "Altek", link: "/altek" },
-        { title: "Longi Solar", link: "/longi-solar" },
-        { title: "JA Solar", link: "/ja-solar" },
-        { title: "Canadian Solar", link: "/canadian-solar" },
-        { title: "Sola", link: "/sola" },
-        { title: "TONGWEI", link: "/tongwei" },
-        { title: "Luxen", link: "/luxen" },
-        { title: "Ulica", link: "/ulica" },
-        { title: "Astronergy", link: "/astronergy" },
-        { title: "SunPro", link: "/sunpro" },
-        { title: "ZNSHINE", link: "/znshine" },
-        { title: "HT-SAAE", link: "/ht-saae" },
-        { title: "Horay Solar", link: "/horay-solar" },
-      ],
-    },
-    {
-      id: "inverters",
-      title: "Сонячні інвертори",
-      icon: <FaPowerOff className={css.iconTitle} />,
-      subcategories: [
-        { title: "Deye", link: "/deye" },
-        { title: "Altek", link: "/altek" },
-        { title: "Axioma Energy", link: "/axioma-energy" },
-        { title: "LuxPower", link: "/luxpower" },
-        { title: "Sofar Solar", link: "/sofar-solar" },
-        { title: "BlueSun", link: "/bluesun" },
-        { title: "Huawei", link: "/huawei" },
-        { title: "Felicitysolar", link: "/felicitysolar" },
-        { title: "Must", link: "/must" },
-        { title: "Solis", link: "/solis" },
-        { title: "Afore", link: "/afore" },
-        { title: "Fronius", link: "/fronius" },
-        { title: "Q-Power", link: "/q-power" },
-      ],
-    },
-    {
-      id: "fuses",
-      title: "Запобіжники",
-      icon: <FaBolt className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "ups",
-      title: "Джерела безперебійного живлення",
-      icon: <FaBatteryFull className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "cables",
-      title: "Кабелі і комплектуючі",
-      icon: <FaPlug className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "optimizers",
-      title: "Оптимізатори потужності",
-      icon: <FaGaugeHigh className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "controllers",
-      title: "Контролер",
-      icon: <FaMicrochip className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "mounting",
-      title: "Кріплення для сонячних модулів",
-      icon: <FaHammer className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "batteries",
-      title: "Акумулятори, батареї",
-      icon: <FaBatteryThreeQuarters className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "drone-batteries",
-      title: "Акумулятори для дронів",
-      icon: <FaBatteryFull className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "charging-stations",
-      title: "Зарядні станції, портативні системи",
-      icon: <FaExternalLinkAlt className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "mushrooms",
-      title: "Гриби, грибні добавки",
-      icon: <GiMushroom className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "boilers",
-      title: "Твердопаливні котли",
-      icon: <FaFireAlt className={css.iconTitle} />,
-      subcategories: [],
-    },
-    {
-      id: "air-conditioners",
-      title: "Кондиціонери",
-      icon: <FaSnowflake className={css.iconTitle} />,
-      subcategories: [],
-    },
-  ];
+  return (
+    <div className={css.productCard}>
+      <div className={css.productImageContainer}>
+        <img
+          src={product.main_image}
+          alt={product.name_multilang?.uk || product.name}
+          className={css.productImage}
+          onError={handleImageError}
+          loading="lazy"
+        />
+      </div>
+      <div className={css.productInfo}>
+        <div className={css.productName}>
+          {product.name_multilang?.uk || product.name || 'Назва товару'}
+        </div>
+        <div className={css.productPrice}>
+          {product.price ? `Ціна: ${product.price} грн` : 'Ціна за запитом'}
+        </div>
+      </div>
+      <div className={css.productButtonContainer}>
+        <button className={css.productButton} type="button">
+          Детальніше
+        </button>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = 'ProductCard';
+
+// Memoized Category Item component
+const CategoryItem = memo(({ category, isExpanded, onToggle, onCategorySelect }) => {
+  const handleCategoryClick = useCallback(() => {
+    if (category.subcategories.length > 0) {
+      onToggle(category.id);
+    }
+    
+    // Always try to load category products if it has a key
+    if (category.key) {
+      onCategorySelect(category.key, category.title);
+    }
+  }, [category, onToggle, onCategorySelect]);
+
+  return (
+    <li className={css.categoryItem}>
+      <div className={css.categoryTitle} onClick={handleCategoryClick}>
+        <span className={css.expandIcon}>
+          {category.subcategories.length > 0 && (isExpanded ? "▼" : "▶")}
+        </span>
+        {CATEGORY_ICONS[category.id] || <FaSun className={css.iconTitle} />}
+        <span className={css.categoryText}>{category.title}</span>
+      </div>
+
+      {category.subcategories.length > 0 && isExpanded && (
+        <ul className={css.subcategoryList}>
+          {category.subcategories.map((subcategory, index) => (
+            <li key={index} className={css.subcategoryItem}>
+              <Link to={subcategory.link} className={css.subcategoryLink}>
+                {subcategory.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+});
+
+CategoryItem.displayName = 'CategoryItem';
+
+// Loading skeleton component
+const ProductSkeleton = memo(() => (
+  <div className={`${css.productCard} ${css.skeleton}`}>
+    <div className={css.productImageContainer}>
+      <div className={css.skeletonImage}></div>
+    </div>
+    <div className={css.productInfo}>
+      <div className={css.skeletonText}></div>
+      <div className={css.skeletonPrice}></div>
+    </div>
+    <div className={css.productButtonContainer}>
+      <div className={css.skeletonButton}></div>
+    </div>
+  </div>
+));
+
+ProductSkeleton.displayName = 'ProductSkeleton';
+
+// Main component
+const MainPage = () => {
+  const [expandedCategories, setExpandedCategories] = useState({});
+  
+  // Use the custom products hook
+  const {
+    products,
+    loading,
+    loadingMore,
+    error,
+    activeFilter,
+    showingText,
+    isEmpty,
+    canLoadMore,
+    loadProductsByCategory,
+    resetFilter,
+    loadMore,
+    retry
+  } = useProducts();
+
+  // Toggle category expansion
+  const toggleCategory = useCallback((categoryId) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  }, []);
+
+  // Handle category selection
+  const handleCategorySelect = useCallback((categoryKey, categoryTitle) => {
+    console.log(`Вибрано категорію: ${categoryTitle} (${categoryKey})`);
+    
+    // Expand the main categories section and current category
+    setExpandedCategories(prev => ({
+      ...prev,
+      'main': true,
+      [categoryKey]: true
+    }));
+
+    // Load products for this category
+    loadProductsByCategory(categoryKey, 1, false);
+  }, [loadProductsByCategory]);
+
+  // Handle main categories toggle
+  const toggleMainCategories = useCallback(() => {
+    toggleCategory('main');
+  }, [toggleCategory]);
+
+  // Find active category name
+  const activeCategoryName = activeFilter 
+    ? CATEGORIES_CONFIG.find(cat => cat.key === activeFilter)?.title 
+    : null;
+
+  // Create skeleton loading items
+  const skeletonItems = Array.from({ length: 8 }, (_, i) => (
+    <ProductSkeleton key={`skeleton-${i}`} />
+  ));
 
   return (
     <div className={css.MainPage}>
@@ -347,51 +199,20 @@ console.log( products);
               <div className={css.categoryHeader}>
                 <span
                   className={css.categoryHeaderTitle}
-                  onClick={() => toggleCategory("main")}
+                  onClick={toggleMainCategories}
                 >
                   ▶ Товари
                 </span>
-                {expandedCategories["main"] && (
+                {expandedCategories['main'] && (
                   <ul className={css.categoryList}>
-                    {categories.map((category) => (
-                      <li key={category.id} className={css.categoryItem}>
-                        <div
-                          className={css.categoryTitle}
-                          onClick={() => handleCategoryClick(category)}
-                        >
-                          <span className={css.expandIcon}>
-                            {category.subcategories.length > 0 &&
-                              (expandedCategories[category.id]
-                                ? "▼"
-                                : "▶")}
-                          </span>
-                          {category.icon}
-                          <span className={css.categoryText}>
-                            {category.title}
-                          </span>
-                        </div>
-
-                        {category.subcategories.length > 0 &&
-                          expandedCategories[category.id] && (
-                            <ul className={css.subcategoryList}>
-                              {category.subcategories.map(
-                                (subcategory, index) => (
-                                  <li
-                                    key={index}
-                                    className={css.subcategoryItem}
-                                  >
-                                    <Link
-                                      to={subcategory.link}
-                                      className={css.subcategoryLink}
-                                    >
-                                      {subcategory.title}
-                                    </Link>
-                                  </li>
-                                )
-                              )}
-                            </ul>
-                          )}
-                      </li>
+                    {CATEGORIES_CONFIG.map((category) => (
+                      <CategoryItem
+                        key={category.id}
+                        category={category}
+                        isExpanded={expandedCategories[category.id]}
+                        onToggle={toggleCategory}
+                        onCategorySelect={handleCategorySelect}
+                      />
                     ))}
                   </ul>
                 )}
@@ -425,83 +246,98 @@ console.log( products);
         <div className={css.contentWrapper}>
           <h1 className={css.pageTitle}>Товари</h1>
           
-          {/* Показати активний фільтр */}
-          {activeFilter && (
+          {/* Active filter indicator */}
+          {activeCategoryName && (
             <div className={css.activeFilter}>
-              <p>Показано: {Object.keys(categoryMap).find(key => categoryMap[key] === activeFilter)}</p>
-              <button onClick={resetFilter} className={css.clearFilterBtn}>
+              <p>Показано: {activeCategoryName}</p>
+              <button 
+                onClick={resetFilter} 
+                className={css.clearFilterBtn}
+                type="button"
+              >
                 Скинути фільтр
               </button>
             </div>
           )}
           
-          {/* Інформація про пагінацію */}
-          {pagination && (
+          {/* Pagination info */}
+          {showingText && !loading && (
             <div className={css.paginationInfo}>
-              <p>
-                Показано {pagination.showing} товарів
-              </p>
+              <p>Показано {showingText} товарів</p>
             </div>
           )}
 
-          {loading ? (
+          {/* Loading state */}
+          {loading && (
             <div className={css.loadingMessage}>
-              <p>Завантаження продуктів...</p>
+              <p>Завантаження товарів...</p>
+              <div className={css.productsGrid}>
+                {skeletonItems}
+              </div>
             </div>
-          ) : error ? (
+          )}
+
+          {/* Error state */}
+          {error && !loading && (
             <div className={css.errorContainer}>
-              <p>Помилка завантаження: {error}</p>
+              <div className={css.errorIcon}>⚠️</div>
+              <h3>Помилка завантаження</h3>
+              <p>{error}</p>
               <button 
-                onClick={() => {
-                  if (activeFilter) {
-                    fetchProductsByCategory(activeFilter, 1, false);
-                  } else {
-                    fetchProducts(1, false);
-                  }
-                }}
+                onClick={retry}
                 className={css.retryButton}
+                type="button"
               >
                 Спробувати ще раз
               </button>
             </div>
-          ) : products.length === 0 ? (
+          )}
+
+          {/* Empty state */}
+          {isEmpty && !loading && (
             <div className={css.noProductsMessage}>
-              <p>Продукти не знайдено</p>
+              <div className={css.emptyIcon}>📦</div>
+              <h3>Товарів не знайдено</h3>
+              {activeCategoryName ? (
+                <div>
+                  <p>У категорії "{activeCategoryName}" немає товарів</p>
+                  <button 
+                    onClick={resetFilter}
+                    className={css.clearFilterBtn}
+                    type="button"
+                  >
+                    Переглянути всі товари
+                  </button>
+                </div>
+              ) : (
+                <p>Спробуйте оновити сторінку або зв'яжіться з нами</p>
+              )}
             </div>
-          ) : (
+          )}
+
+          {/* Products grid */}
+          {products.length > 0 && !loading && (
             <>
               <div className={css.productsGrid}>
                 {products.map((product) => (
-                  <div key={product.id} className={css.productCard}>
-                    <div className={css.productImageContainer}>
-                      <img
-                        src={product.main_image}
-                        alt={product.name_multilang?.uk || product.name}
-                        className={css.productImage}
-                        onError={(e) => {
-                          e.target.src = '/placeholder-image.png';
-                        }}
-                      />
-                    </div>
-                    <div className={css.productName}>
-                      {product.name_multilang?.uk || product.name || 'Назва товару'}
-                    </div>
-                    <div className={css.productPrice}>
-                      Ціна: {product.price} грн
-                    </div>
-                    <div className={css.productButtonContainer}>
-                      <button className={css.productButton}>Детальніше</button>
-                    </div>
-                  </div>
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
-              {pagination?.hasMore && (
+              {/* Load more button */}
+              {canLoadMore && (
                 <div className={css.loadMoreWrapper}>
                   <LoadMoreBtn 
-                    handleLoadMore={handleLoadMore}
+                    handleLoadMore={loadMore}
                     loading={loadingMore}
                   />
+                </div>
+              )}
+
+              {/* No more products message */}
+              {!canLoadMore && products.length > 0 && (
+                <div className={css.endMessage}>
+                  <p>Це всі доступні товари</p>
                 </div>
               )}
             </>
