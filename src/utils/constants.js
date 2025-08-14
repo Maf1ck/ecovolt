@@ -1,7 +1,7 @@
 // API Configuration
 export const API_BASE_URL = process.env.NODE_ENV === 'production'
-    ? 'https://ecovolt-back.onrender.com'
-    : 'http://localhost:3000';
+    ? 'https://ecovolt-back.onrender.com/api/products'
+    : 'http://localhost:3000/api/products';
 
 // Categories configuration
 export const CATEGORIES_CONFIG = [

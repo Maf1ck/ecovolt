@@ -365,7 +365,7 @@ const useProducts = () => {
       
       updateState({ loading: true, error: null });
 
-      const response = await fetch(`${API_BASE_URL}/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/product/${productId}`, {
         signal,
         headers: {
           'Cache-Control': 'no-cache',
@@ -438,12 +438,10 @@ const useProducts = () => {
 
   // Initial data load on mount
   useEffect(() => {
-  if (state.products.length === 0 && !state.loading && !state.error) {
-    loadAllProducts({ page: 1 }).catch(error => {
-      console.error('Initial load failed:', error);
-    });
-  }
-}, [state.products.length, state.loading, state.error, loadAllProducts]);
+  loadAllProducts({ page: 1 }).catch(error => {
+    console.error('Initial load failed:', error);
+  });
+}, []);
 
   // Cleanup on unmount
   useEffect(() => {

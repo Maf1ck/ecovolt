@@ -1,7 +1,6 @@
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, memo, useEffect } from "react";
 import css from "./MainPage.module.css";
 import { Link } from "react-router-dom";
-import useProducts from "../../hooks/useProducts";
 import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
 import { CATEGORIES_CONFIG, DEFAULT_IMAGES } from "../../utils/constants";
 import {
@@ -74,83 +73,109 @@ const ProductCard = memo(({ product }) => {
 
 ProductCard.displayName = 'ProductCard';
 
-// Memoized Category Item component
-const CategoryItem = memo(({ category, isExpanded, onToggle, onCategorySelect }) => {
-  const handleCategoryClick = useCallback(() => {
-    if (category.subcategories.length > 0) {
-      onToggle(category.id);
-    }
-    
-    // Always try to load category products if it has a key
-    if (category.key) {
-      onCategorySelect(category.key, category.title);
-    }
-  }, [category, onToggle, onCategorySelect]);
-
-  return (
-    <li className={css.categoryItem}>
-      <div className={css.categoryTitle} onClick={handleCategoryClick}>
-        <span className={css.expandIcon}>
-          {category.subcategories.length > 0 && (isExpanded ? "▼" : "▶")}
-        </span>
-        {CATEGORY_ICONS[category.id] || <FaSun className={css.iconTitle} />}
-        <span className={css.categoryText}>{category.title}</span>
-      </div>
-
-      {category.subcategories.length > 0 && isExpanded && (
-        <ul className={css.subcategoryList}>
-          {category.subcategories.map((subcategory, index) => (
-            <li key={index} className={css.subcategoryItem}>
-              <Link to={subcategory.link} className={css.subcategoryLink}>
-                {subcategory.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-});
-
-CategoryItem.displayName = 'CategoryItem';
-
-// Loading skeleton component
-const ProductSkeleton = memo(() => (
-  <div className={`${css.productCard} ${css.skeleton}`}>
-    <div className={css.productImageContainer}>
-      <div className={css.skeletonImage}></div>
-    </div>
-    <div className={css.productInfo}>
-      <div className={css.skeletonText}></div>
-      <div className={css.skeletonPrice}></div>
-    </div>
-    <div className={css.productButtonContainer}>
-      <div className={css.skeletonButton}></div>
-    </div>
-  </div>
-));
-
-ProductSkeleton.displayName = 'ProductSkeleton';
-
 // Main component
 const MainPage = () => {
+  // Стан компонента
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeFilter, setActiveFilter] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
-  
-  // Use the custom products hook
-  const {
-    products,
-    loading,
-    loadingMore,
-    error,
-    activeFilter,
-    showingText,
-    isEmpty,
-    canLoadMore,
-    loadProductsByCategory,
-    resetFilter,
-    loadMore,
-    retry
-  } = useProducts();
+
+  // Функція завантаження товарів
+  const fetchProducts = useCallback(async (page = 1, append = false, category = null) => {
+    try {
+      // Очищаємо помилку
+      setError(null);
+      
+      if (page === 1) {
+        setLoading(true);
+        if (!append) setProducts([]);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '8'
+      });
+      
+      if (category) {
+        params.append('category', category);
+      }
+
+      console.log(`🔍 Завантажуємо товари: ${category || 'всі'}, сторінка: ${page}`);
+
+      const response = await fetch(
+        `https://ecovolt-back.onrender.com/api/products?${params}`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      // Перевірка статусу відповіді
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`📦 Отримано дані:`, data);
+
+      if (!data.success) {
+        throw new Error(data.error || `Не вдалося завантажити товари`);
+      }
+
+      // Перевірка чи є товари
+      if (!data.products || !Array.isArray(data.products)) {
+        throw new Error('Некоректна структура даних від сервера');
+      }
+
+      if (append && page > 1) {
+        setProducts(prev => [...prev, ...data.products]);
+      } else {
+        setProducts(data.products);
+      }
+      
+      setPagination(data.pagination);
+      setCurrentPage(page);
+      
+      console.log(`📊 Завантажено товарів: ${data.products.length}, всього доступно: ${data.pagination?.totalItems || 'невідомо'}`);
+      
+    } catch (err) {
+      const errorMessage = err.message || "Помилка мережі. Перевірте підключення до інтернету.";
+      setError(errorMessage);
+      console.error(`❌ Помилка завантаження товарів:`, err);
+      
+      // Якщо це перша сторінка і помилка, очищаємо продукти
+      if (page === 1) {
+        setProducts([]);
+        setPagination(null);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
+
+  // Початкове завантаження товарів
+  useEffect(() => {
+    fetchProducts(1, false, null);
+  }, [fetchProducts]);
+
+  // Завантаження більше товарів
+  const loadMore = useCallback(() => {
+    if (!pagination?.hasMore || loadingMore) return;
+    
+    const nextPage = currentPage + 1;
+    fetchProducts(nextPage, true, activeFilter);
+  }, [fetchProducts, pagination?.hasMore, loadingMore, currentPage, activeFilter]);
 
   // Toggle category expansion
   const toggleCategory = useCallback((categoryId) => {
@@ -171,19 +196,94 @@ const MainPage = () => {
       [categoryKey]: true
     }));
 
-    // Load products for this category
-    loadProductsByCategory(categoryKey, 1, false);
-  }, [loadProductsByCategory]);
+    // Set active filter and load products
+    setActiveFilter(categoryKey);
+    fetchProducts(1, false, categoryKey);
+  }, [fetchProducts]);
 
   // Handle main categories toggle
   const toggleMainCategories = useCallback(() => {
     toggleCategory('main');
   }, [toggleCategory]);
 
+  // Reset filter
+  const resetFilter = useCallback(() => {
+    setActiveFilter(null);
+    fetchProducts(1, false, null);
+  }, [fetchProducts]);
+
+  // Retry function
+  const retry = useCallback(() => {
+    fetchProducts(currentPage, false, activeFilter);
+  }, [fetchProducts, currentPage, activeFilter]);
+
   // Find active category name
   const activeCategoryName = activeFilter 
     ? CATEGORIES_CONFIG.find(cat => cat.key === activeFilter)?.title 
     : null;
+
+  // Computed values
+  const isEmpty = products.length === 0 && !loading;
+  const canLoadMore = Boolean(pagination?.hasMore);
+  const showingText = pagination?.showing;
+
+  // Category Item Component
+  const CategoryItem = memo(({ category, isExpanded, onToggle, onCategorySelect }) => {
+    const handleCategoryClick = useCallback(() => {
+      if (category.subcategories.length > 0) {
+        onToggle(category.id);
+      }
+      
+      // Always try to load category products if it has a key
+      if (category.key) {
+        onCategorySelect(category.key, category.title);
+      }
+    }, [category, onToggle, onCategorySelect]);
+
+    return (
+      <li className={css.categoryItem}>
+        <div className={css.categoryTitle} onClick={handleCategoryClick}>
+          <span className={css.expandIcon}>
+            {category.subcategories.length > 0 && (isExpanded ? "▼" : "▶")}
+          </span>
+          {CATEGORY_ICONS[category.id] || <FaSun className={css.iconTitle} />}
+          <span className={css.categoryText}>{category.title}</span>
+        </div>
+
+        {category.subcategories.length > 0 && isExpanded && (
+          <ul className={css.subcategoryList}>
+            {category.subcategories.map((subcategory, index) => (
+              <li key={index} className={css.subcategoryItem}>
+                <Link to={subcategory.link} className={css.subcategoryLink}>
+                  {subcategory.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    );
+  });
+
+  CategoryItem.displayName = 'CategoryItem';
+
+  // Loading skeleton component
+  const ProductSkeleton = memo(() => (
+    <div className={`${css.productCard} ${css.skeleton}`}>
+      <div className={css.productImageContainer}>
+        <div className={css.skeletonImage}></div>
+      </div>
+      <div className={css.productInfo}>
+        <div className={css.skeletonText}></div>
+        <div className={css.skeletonPrice}></div>
+      </div>
+      <div className={css.productButtonContainer}>
+        <div className={css.skeletonButton}></div>
+      </div>
+    </div>
+  ));
+
+  ProductSkeleton.displayName = 'ProductSkeleton';
 
   // Create skeleton loading items
   const skeletonItems = Array.from({ length: 8 }, (_, i) => (
